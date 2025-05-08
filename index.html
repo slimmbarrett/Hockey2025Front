@@ -1,12 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Hockey WebApp</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+import React, { useState, useEffect } from "react";
+
+const API = "https://hockey-prediction-api.com";
+
+function App() {
+  const [predictions, setPredictions] = useState([]);
+  const [formData, setFormData] = useState({ matchId: "", prediction: "" });
+
+  useEffect(() => {
+    fetch(`${API}/predictions`)
+      .then((res) => res.json())
+      .then((data) => setPredictions(data))
+      .catch((error) => console.error("Error fetching predictions:", error));
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${API}/submit_prediction`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => res.json())
+      .then((newPrediction) => setPredictions([...predictions, newPrediction]))
+      .catch((error) => console.error("Error submitting prediction:", error));
+  };
+
+  return (
+    <div>
+      <h1>Hockey Predictions</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="matchId"
+          value={formData.matchId}
+          onChange={handleChange}
+          placeholder="Match ID"
+        />
+        <input
+          name="prediction"
+          value={formData.prediction}
+          onChange={handleChange}
+          placeholder="Your Prediction"
+        />
+        <button type="submit">Submit Prediction</button>
+      </form>
+      <ul>
+        {predictions.map((p) => (
+          <li key={p.id}>{p.matchId}: {p.prediction}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
