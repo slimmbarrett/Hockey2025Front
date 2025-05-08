@@ -9,7 +9,7 @@ export default function App() {
   const [name, setName] = useState("");
 
   useEffect(() => {
-    fetch(\`\${API}/next_match\`)
+    fetch(`${API}/next_match`)
       .then(res => res.json())
       .then(data => setMatch(data));
   }, []);
